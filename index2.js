@@ -1,18 +1,5 @@
 const HKO        = require("./HKO.js");
 
-if (!process.env.DB_HOST) {
-    console.error("process.env.DB_HOST is not defined. exiting");
-    process.exit();
-}
-
-const mysql      = require('mysql');
-const connection = mysql.createConnection({
-  host     : process.env.DB_HOST,
-  user     : process.env.DB_USER,
-  password : process.env.DB_PASS,
-  database : process.env.DB_NAME,
-});
-
 HKO.getWeather().then(weather => {
     // Moment is created with correct timezone information for Hong Kong.
     // Therefore the underlying JS date type represents the correct instant in time.
@@ -26,17 +13,8 @@ HKO.getWeather().then(weather => {
     const kp = weather.stations["King's Park"];
     const hko = weather.stations["HK Observatory"];
     
-    // console.log(kp);
+    console.log(kp);
     
-    const sql = `INSERT INTO solar_weather (time, air_temperature, humidity, wind_speed, wind_direction, air_pressure, solar_global, solar_direct, solar_diffuse) VALUES ('${time}', ${kp.airTemperature}, ${kp.humidity}, ${kp.windSpeed}, ${getWindDirection(kp.windDirection)}, ${hko.seaLevelPressure}, ${kp.globalSolar || 0}, ${kp.directSolar || 0}, ${kp.diffuseSolar || 0})`;
-    
-    // console.log(sql);
-    
-    connection.connect();
-
-    connection.query(sql, function (error) { if (error) console.log(error.sqlMessage); else console.log(`${time}: Inserted`); });
-
-    connection.end();
     
 }).catch(e => console.log(e));
 
